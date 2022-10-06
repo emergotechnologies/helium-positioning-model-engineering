@@ -3,7 +3,15 @@ Praxisprojekt LoraWan Positionierung
 
 A short description of the project.
 
-Project Organization
+### Setup
+
+Start Devcontainer in VSCode and execute:
+
+```
+pip install -r requirements.txt
+```
+
+### Project Organization
 ------------
 
     ├── LICENSE
