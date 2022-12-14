@@ -1,0 +1,7 @@
+stages:
+  crawl_data:
+    cmd: python -m helium_api_wrapper ....
+    deps:
+      - params.txt?
+    outs:
+      - data/raw/...
