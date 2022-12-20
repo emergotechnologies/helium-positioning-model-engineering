@@ -11,6 +11,16 @@ Start Devcontainer in VSCode and execute:
 pip install -r requirements.txt
 ```
 
+### Download Data From Google Sheets
+
+To download data for different experiments from Google Sheets, you can execute the following command:
+
+```
+python -m src.data.load_data
+```
+
+If the --id option is not provided, the CLI will fetch and print the available experiments and prompt the user to enter the ID of the experiment they want to extract. For more information use the `--help` command.
+
 ### Project Organization
 ------------
 
