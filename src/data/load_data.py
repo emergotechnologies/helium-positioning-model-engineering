@@ -23,7 +23,7 @@ DATA_RANGE_NAME = 'data!A1:M'
 # Set the column names for the datetime start and end columns
 DATETIME_START_COLUMN = 'datetime_start'
 DATETIME_END_COLUMN = 'datetime_end'
-REPORTED_AT_COLUMN = 'reported-at'
+REPORTED_AT_COLUMN = 'reported_at'
 
 # Set the date format for the datetime columns
 DATE_FORMAT = '%d.%m.%Y %H:%M:%S'
@@ -64,7 +64,7 @@ def download_data(experiment_id, file_format, path):
     filtered_data = [
         row 
         for row in data[1:] 
-        if start_date <= datetime.datetime.fromtimestamp(int(row[reported_at_index]) / 1000) <= end_date
+        if start_date <= datetime.datetime.strptime(row[reported_at_index], DATE_FORMAT) <= end_date
     ]
 
     assert len(filtered_data) > 0, f"No Data found for experiment with id {experiment_id}. Please check if the date range is correct!"
@@ -93,7 +93,7 @@ def normalize_data(data, columns):
     keys = list(json_array[0].keys())
 
     # Add the keys to the list of column names
-    columns = columns[:3] + [f"hotspot_{key}" for key in keys] + columns[4:]
+    columns = columns[:3] + [f"hotspot_{key}" for key in keys] + columns[4:-1]
 
     normalized_data = [columns]
     for row in data:
@@ -180,10 +180,10 @@ def write_data(data, column_names, path, output_filename, file_format="csv"):
             pickle.dump(data, picklefile)
     elif file_format == 'excel':
         df = pd.DataFrame(data, columns=column_names)
-        df.to_excel(os.path.join(path, output_filename), index=False)
+        df.to_excel(os.path.join(path, output_filename + ".xlsx"), index=False)
     elif file_format == 'parquet':
         df = pd.DataFrame(data, columns=column_names)
-        df.to_parquet(os.path.join(path, output_filename), index=False)
+        df.to_parquet(os.path.join(path, output_filename + ".parquet"), index=False)
     else:
         raise ValueError(f"Invalid file format: {file_format}")
 
