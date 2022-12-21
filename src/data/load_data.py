@@ -72,7 +72,7 @@ def download_data(experiment_id, file_format, path):
     # Normalize Data
     normalized_data = normalize_data(filtered_data, data[0])
 
-    experiment_name = f"Experiment_{experiment_id}"
+    experiment_name = f"experiment_{experiment_id}"
 
     # Write the filtered data to a CSV file
     write_data(normalized_data[1:], normalized_data[0], path, experiment_name, file_format)
@@ -171,6 +171,7 @@ def write_data(data, column_names, path, output_filename, file_format="csv"):
         output_filename: The name of the output file
         file_format: The format of the output file (csv, pickle, excel, parquet) (default: csv)
     """
+    os.makedirs(path, exist_ok=True)
     if file_format == 'csv':
         df = pd.DataFrame(data, columns=column_names)
         df.to_csv(os.path.join(path, output_filename) + ".csv", index=False)
@@ -211,9 +212,10 @@ def print_experiment_table(data):
 @click.command()
 @click.option('--id', type=int, help='The index of the row in the metadata page to use for filtering.')
 @click.option('--last', is_flag=True, help='Downloads the latest experiment data.')
+@click.option('--all', is_flag=True, help='Downloads the all experiment data.')
 @click.option("--file_format", default="csv", type=str, help="Defines the format for the output file. (csv, pickle, excel, parquet)")
-@click.option("--path", default="./data/raw/", type=str, help="Defines the path to export the file to.")
-def main(id, last, file_format, path):
+@click.option("--path", default="./data/raw/experiments", type=str, help="Defines the path to export the file to.")
+def main(id, last, all, file_format, path):
     if id is not None:
         download_data(id, file_format, path)
     else:
@@ -221,15 +223,20 @@ def main(id, last, file_format, path):
         service = get_service()
         metadata = get_data(service, SPREADSHEET_ID, "metadata")
 
-        if last:
+        if all:
+            print(f"Downloading all Experiments.")
+            for row in metadata[1:]:
+                id = int(row[0])
+                print(f"Downloading experiment with id {id}...")
+                download_data(id, file_format, path)
+        elif last:
             last_id = int(metadata[-1][0])
             print(f"Downloading latest experiment with id {last_id}")
             download_data(last_id, file_format, path)
-
-
-        print_experiment_table(metadata)
-        id = click.prompt('Enter the ID of the experiment you want to extract', type=int)
-        download_data(id, file_format, path)
+        else:
+            print_experiment_table(metadata)
+            id = click.prompt('Enter the ID of the experiment you want to extract', type=int)
+            download_data(id, file_format, path)
     print("done!")
 
 main()
