@@ -1,0 +1,7 @@
+[core]
+    remote = webdav
+    analytics = false
+['remote "webdav"']
+    url = webdavs://nextcloud.web.fh-kufstein.ac.at/remote.php/dav/files/pp_lorawan
+    user = pp_lorawan
+    password = @N4wqK%<*;T(@I9X

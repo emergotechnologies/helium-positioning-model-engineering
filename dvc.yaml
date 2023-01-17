@@ -1,5 +1,21 @@
 stages:
-  crawl_data:
+  crawl_data_sps:
     cmd: python -m src.data.load_data --all
     outs:
-      - data/raw/experiments/
+      - data/raw/sps
+  
+     
+  crawl_data:
+    cmd: python -m helium_api_wrapper load-challenges --n 10 --file_format "csv"
+    outs:
+      - data/raw/helium 
+
+    #prepare:
+    #cmd: python src/prepare.py
+    #deps:
+    #  - data/raw
+    #  - src/prepare.py
+    #outs:
+    #  - data/prepared/test.csv
+    #  - data/prepared/train.csv
+
