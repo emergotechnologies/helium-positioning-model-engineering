@@ -12,6 +12,7 @@ import os
 import click
 import pandas as pd
 from dotenv import load_dotenv
+import re
 
 # Load environment variables from the .env file
 load_dotenv()
@@ -64,8 +65,12 @@ def download_data(experiment_id, file_format, path):
     filtered_data = [
         row 
         for row in data[1:] 
-        if start_date <= datetime.datetime.strptime(row[reported_at_index], DATE_FORMAT) <= end_date
+        if start_date <= get_datetime(row[reported_at_index]) <= end_date
     ]
+
+    # Convert reported_at datetime format
+    for row in filtered_data:
+        row[reported_at_index] = get_datetime(row[reported_at_index]).strftime(DATE_FORMAT)
 
     assert len(filtered_data) > 0, f"No Data found for experiment with id {experiment_id}. Please check if the date range is correct!"
 
@@ -76,6 +81,13 @@ def download_data(experiment_id, file_format, path):
 
     # Write the filtered data to a CSV file
     write_data(normalized_data[1:], normalized_data[0], path, experiment_name, file_format)
+
+def get_datetime(datestring):
+    if re.match("^\d{13}$", str(datestring)):
+        print(datestring,  datetime.datetime.fromtimestamp(int(datestring) / 1000))
+        return datetime.datetime.fromtimestamp(int(datestring) / 1000)
+    else:
+        return datetime.datetime.strptime(datestring, DATE_FORMAT)
 
 def normalize_data(data, columns):
     """
