@@ -1,4 +1,12 @@
 stages:
+  prepare:
+    cmd: python3 src/features/prepare.py
+    deps: 
+    - src/features/prepare.py
+    params: 
+    - prepare.features
+    outs:
+    - data/prepared
   crawl_data:
     cmd: python -m helium_api_wrapper ....
     deps:
