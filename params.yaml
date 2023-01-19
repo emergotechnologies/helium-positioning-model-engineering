@@ -1,0 +1,10 @@
+prepare:
+  features:
+    - witness_lat
+    - witness_lng
+    - signal
+    - snr
+    - datarate
+    - is_valid
+    - time
+    - distance
