@@ -2,7 +2,7 @@ import os
 import yaml
 import pandas as pd
 
-#read params
+# read params
 
 params = yaml.safe_load(open('params.yaml'))['prepare']
 
@@ -13,10 +13,10 @@ features = params['features']
 data_path = os.path.join('data', 'prepared')
 os.makedirs(data_path, exist_ok= True)
 
-data = pd.read_pickle("enter_data_source in here")
 
-data_train = data(subset = 'train', features= 'features')
-data_test = data(subset = 'test', features= 'features')
+
+data_train = data_path(subset = 'train', features= 'features')
+data_test = data_path(subset = 'test', features= 'features')
 
 def data_to_csv(split_name, data):
     df = pd.DataFrame([data.data, data.target.tolist()]).T
