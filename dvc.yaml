@@ -8,8 +8,16 @@ stages:
     outs:
     - data/prepared
   crawl_data:
-    cmd: python -m helium_api_wrapper ....
-    deps:
-      - params.txt?
+    cmd: python -m helium_api_wrapper load-challenges --n 10 --file_format "csv"
     outs:
-      - data/raw/...
+      - data/raw/helium 
+
+    #prepare:
+    #cmd: python src/prepare.py
+    #deps:
+    #  - data/raw
+    #  - src/prepare.py
+    #outs:
+    #  - data/prepared/test.csv
+    #  - data/prepared/train.csv
+

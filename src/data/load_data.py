@@ -12,6 +12,7 @@ import os
 import click
 import pandas as pd
 from dotenv import load_dotenv
+import re
 
 # Load environment variables from the .env file
 load_dotenv()
@@ -23,7 +24,7 @@ DATA_RANGE_NAME = 'data!A1:M'
 # Set the column names for the datetime start and end columns
 DATETIME_START_COLUMN = 'datetime_start'
 DATETIME_END_COLUMN = 'datetime_end'
-REPORTED_AT_COLUMN = 'reported-at'
+REPORTED_AT_COLUMN = 'reported_at'
 
 # Set the date format for the datetime columns
 DATE_FORMAT = '%d.%m.%Y %H:%M:%S'
@@ -64,18 +65,29 @@ def download_data(experiment_id, file_format, path):
     filtered_data = [
         row 
         for row in data[1:] 
-        if start_date <= datetime.datetime.fromtimestamp(int(row[reported_at_index]) / 1000) <= end_date
+        if start_date <= get_datetime(row[reported_at_index]) <= end_date
     ]
+
+    # Convert reported_at datetime format
+    for row in filtered_data:
+        row[reported_at_index] = get_datetime(row[reported_at_index]).strftime(DATE_FORMAT)
 
     assert len(filtered_data) > 0, f"No Data found for experiment with id {experiment_id}. Please check if the date range is correct!"
 
     # Normalize Data
     normalized_data = normalize_data(filtered_data, data[0])
 
-    experiment_name = f"Experiment_{experiment_id}"
+    experiment_name = f"experiment_{experiment_id}"
 
     # Write the filtered data to a CSV file
     write_data(normalized_data[1:], normalized_data[0], path, experiment_name, file_format)
+
+def get_datetime(datestring):
+    if re.match("^\d{13}$", str(datestring)):
+        print(datestring,  datetime.datetime.fromtimestamp(int(datestring) / 1000))
+        return datetime.datetime.fromtimestamp(int(datestring) / 1000)
+    else:
+        return datetime.datetime.strptime(datestring, DATE_FORMAT)
 
 def normalize_data(data, columns):
     """
@@ -93,7 +105,7 @@ def normalize_data(data, columns):
     keys = list(json_array[0].keys())
 
     # Add the keys to the list of column names
-    columns = columns[:3] + [f"hotspot_{key}" for key in keys] + columns[4:]
+    columns = columns[:3] + [f"hotspot_{key}" for key in keys] + columns[4:-1]
 
     normalized_data = [columns]
     for row in data:
@@ -171,6 +183,7 @@ def write_data(data, column_names, path, output_filename, file_format="csv"):
         output_filename: The name of the output file
         file_format: The format of the output file (csv, pickle, excel, parquet) (default: csv)
     """
+    os.makedirs(path, exist_ok=True)
     if file_format == 'csv':
         df = pd.DataFrame(data, columns=column_names)
         df.to_csv(os.path.join(path, output_filename) + ".csv", index=False)
@@ -180,10 +193,10 @@ def write_data(data, column_names, path, output_filename, file_format="csv"):
             pickle.dump(data, picklefile)
     elif file_format == 'excel':
         df = pd.DataFrame(data, columns=column_names)
-        df.to_excel(os.path.join(path, output_filename), index=False)
+        df.to_excel(os.path.join(path, output_filename + ".xlsx"), index=False)
     elif file_format == 'parquet':
         df = pd.DataFrame(data, columns=column_names)
-        df.to_parquet(os.path.join(path, output_filename), index=False)
+        df.to_parquet(os.path.join(path, output_filename + ".parquet"), index=False)
     else:
         raise ValueError(f"Invalid file format: {file_format}")
 
@@ -211,9 +224,10 @@ def print_experiment_table(data):
 @click.command()
 @click.option('--id', type=int, help='The index of the row in the metadata page to use for filtering.')
 @click.option('--last', is_flag=True, help='Downloads the latest experiment data.')
+@click.option('--all', is_flag=True, help='Downloads the all experiment data.')
 @click.option("--file_format", default="csv", type=str, help="Defines the format for the output file. (csv, pickle, excel, parquet)")
-@click.option("--path", default="./data/raw/", type=str, help="Defines the path to export the file to.")
-def main(id, last, file_format, path):
+@click.option("--path", default="./data/raw/experiments", type=str, help="Defines the path to export the file to.")
+def main(id, last, all, file_format, path):
     if id is not None:
         download_data(id, file_format, path)
     else:
@@ -221,15 +235,20 @@ def main(id, last, file_format, path):
         service = get_service()
         metadata = get_data(service, SPREADSHEET_ID, "metadata")
 
-        if last:
+        if all:
+            print(f"Downloading all Experiments.")
+            for row in metadata[1:]:
+                id = int(row[0])
+                print(f"Downloading experiment with id {id}...")
+                download_data(id, file_format, path)
+        elif last:
             last_id = int(metadata[-1][0])
             print(f"Downloading latest experiment with id {last_id}")
             download_data(last_id, file_format, path)
-
-
-        print_experiment_table(metadata)
-        id = click.prompt('Enter the ID of the experiment you want to extract', type=int)
-        download_data(id, file_format, path)
+        else:
+            print_experiment_table(metadata)
+            id = click.prompt('Enter the ID of the experiment you want to extract', type=int)
+            download_data(id, file_format, path)
     print("done!")
 
 main()

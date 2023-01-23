@@ -76,7 +76,7 @@ target/
 .ipynb_checkpoints/
 
 # exclude data from source control by default
-/data/**/*
+#/data/**/*
 
 !/data
 !/data/raw
@@ -91,3 +91,5 @@ target/
 
 # Mypy cache
 .mypy_cache/
+
+venv
