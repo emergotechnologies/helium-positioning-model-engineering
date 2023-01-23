@@ -26,8 +26,7 @@ features_path = sys.argv[2]
 
 os.makedirs(features_path, exist_ok=True)
 
-#todo add filename
-data_input_file = os.path.join(data_path, 'input.csv')
+data_input_file = os.path.join(data_path, 'train.csv')
 test_input_file  = os.path.join(data_path, 'test.csv')
 
 # todo: do we need to import the data already seperated as train/test? Otherwise we can change this snippet
@@ -45,3 +44,35 @@ for i in range(len(data)):
         unit=Unit.METERS
     )
     
+def extract_column(column, df_path):
+    df = get_df(df_path)
+    corpus = df[[column]]
+
+    return corpus
+
+def get_train_and_test_corpus(df_1, df_2):
+    corpus_train = df_1["text"]
+    corpus_test = df_2["text"]
+
+    return corpus_train.append(corpus_test) 
+
+def append_labels_and_save_pkl(df, tfidf_matrix, filename):
+    output_file = os.path.join(features_path, filename)
+    target = df[["target"]]
+    output = pd.concat([pd.DataFrame(tfidf_matrix.toarray()), target], axis=1)
+
+    with open(output_file, 'wb') as f:
+        pickle.dump(output, f)   
+        
+vectorizer = TfidfVectorizer()
+
+corpus = get_train_and_test_corpus(data_input_file, test_input_file)
+vectorizer.fit(corpus)
+
+
+train_matrix = vectorizer.transform(data_input_file["text"])
+test_matrix = vectorizer.transform(test_input_file["text"])
+
+
+append_labels_and_save_pkl(data_input_file, train_matrix, 'train.pkl')
+append_labels_and_save_pkl(test_input_file, test_matrix, 'test.pkl') 
