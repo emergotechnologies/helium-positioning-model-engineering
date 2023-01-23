@@ -1,0 +1,5 @@
+outs:
+- md5: 7bfd6c1d5c75994a2212f04c6093e93f.dir
+  size: 2149692
+  nfiles: 8
+  path: remote_storage
