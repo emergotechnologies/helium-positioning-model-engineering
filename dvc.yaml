@@ -15,7 +15,8 @@ stages:
     params: 
     - prepare.features
     outs:
-    - data/prepared
+    - data/prepared/train.csv
+    - data/prepared/test.csv
   
 
     #prepare:
