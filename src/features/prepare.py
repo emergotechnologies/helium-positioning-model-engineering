@@ -19,6 +19,7 @@ data_train = data_path(subset = 'train', features= 'features')
 data_test = data_path(subset = 'test', features= 'features')
 
 def data_to_csv(split_name, data):
+    """TODO docstring needed"""
     df = pd.DataFrame([data.data, data.target.tolist()]).T
     df.columns = ['challengee_lat', 'challengee_lon', 'witness_lat', 'witness_lat', 'signal', 'snr', 'datarate', 'time']
 
