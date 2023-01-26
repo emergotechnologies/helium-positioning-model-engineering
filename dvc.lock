@@ -36,8 +36,8 @@ stages:
       md5: 0188d13d5d4bfaad5c5a301025a59437
       size: 14714
     - path: src/features/train.py
-      md5: 9d63386bcdef6db50175b3af05dd581f
-      size: 1249
+      md5: b4b0c55e1477fdccdf98c19fff1c5c7f
+      size: 1178
     params:
       params.yaml:
         prepare.features:
