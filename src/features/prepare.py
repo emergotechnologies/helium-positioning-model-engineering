@@ -11,19 +11,21 @@ from sklearn.model_selection import train_test_split
 # create folder to save file
 
 data_path = os.path.join('data', 'prepared')
-os.makedirs(data_path, exist_ok= True) 
+os.makedirs(data_path, exist_ok= True)
 
 
 #TODO  hier sollte eine Methode entstehen, um alle oder bestimmte relevante Ordner zu lesen 
 # und Daten aus Experimente und/oder remote/storage und/oder Wrapper zu fetchen
-data = pd.read_pickle("./data/raw/remote_storage/challenges_2.pkl")
-
+data = pd.read_pickle("./data/raw/remote_storage/challenges.pkl")
+data = data.reset_index(drop=True)
+data = data[["witness_lat","witness_lng","signal","distance"]]
 #data_train = data_path(subset = 'train', features= 'features')
 #data_test = data_path(subset = 'test', features= 'features')
 
 def splitter(inputdata):
+    #inp = inputdata.reset_index(drop=True)
     train, test = train_test_split(
-        data,
+        inputdata,
         test_size=0.3,
         random_state=42
     )

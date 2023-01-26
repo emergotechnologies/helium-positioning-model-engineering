@@ -4,8 +4,8 @@ stages:
     cmd: python3 src/features/prepare.py
     deps:
     - path: src/features/prepare.py
-      md5: 1772322f9b3f22e8a5980262b0a52213
-      size: 1025
+      md5: eb39542f35d472d790221ab9b711e20c
+      size: 1168
     params:
       params.yaml:
         prepare.features:
@@ -19,8 +19,8 @@ stages:
         - distance
     outs:
     - path: data/prepared/
-      md5: 6688b15082e9e0aea081930b62d8d5b2.dir
-      size: 1941
+      md5: be65ce6dc8a18e62ad28b230a3f2fce2.dir
+      size: 21098
       nfiles: 2
   load_data_sps:
     cmd: python -m src.data.load_data --id 1
@@ -29,3 +29,27 @@ stages:
       md5: 23a45ca291ef459c72327981d3d21f00.dir
       size: 3281
       nfiles: 1
+  train:
+    cmd: python3 src/features/train.py
+    deps:
+    - path: data/prepared/train.csv
+      md5: 0188d13d5d4bfaad5c5a301025a59437
+      size: 14714
+    - path: src/features/train.py
+      md5: 9d63386bcdef6db50175b3af05dd581f
+      size: 1249
+    params:
+      params.yaml:
+        prepare.features:
+        - witness_lat
+        - witness_lng
+        - signal
+        - snr
+        - datarate
+        - is_valid
+        - time
+        - distance
+    outs:
+    - path: models/model.joblib
+      md5: 44ce3f8c6ae53768234109dd57a5db12
+      size: 943

@@ -18,6 +18,15 @@ stages:
     - data/prepared/
 
   
-
+  train:
+    cmd: python3 src/features/train.py
+    deps: 
+    - src/features/train.py
+    - data/prepared/train.csv
+    params: 
+    - prepare.features
+    - prepare.features
+    outs:
+    - models/model.joblib
     
 
