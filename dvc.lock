@@ -53,3 +53,27 @@ stages:
     - path: models/model.joblib
       md5: 44ce3f8c6ae53768234109dd57a5db12
       size: 943
+  evaluate:
+    cmd: python3 src/features/evaluate.py
+    deps:
+    - path: data/prepared/test.csv
+      md5: f0545d4a440cc727babd2ee9307b6610
+      size: 6384
+    - path: models/model.joblib
+      md5: 44ce3f8c6ae53768234109dd57a5db12
+      size: 943
+    params:
+      params.yaml:
+        prepare.features:
+        - witness_lat
+        - witness_lng
+        - signal
+        - snr
+        - datarate
+        - is_valid
+        - time
+        - distance
+    outs:
+    - path: models/results.json
+      md5: 1f95de499fb3c977be1ad4e01fbac85a
+      size: 190

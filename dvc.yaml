@@ -28,5 +28,14 @@ stages:
     - prepare.features
     outs:
     - models/model.joblib
-    
 
+
+  evaluate:
+    cmd: python3 src/features/evaluate.py
+    deps:
+    - data/prepared/test.csv
+    - models/model.joblib
+    params: 
+    - prepare.features
+    outs:
+    - models/results.json
