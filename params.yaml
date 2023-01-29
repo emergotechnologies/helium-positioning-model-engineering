@@ -8,3 +8,19 @@ prepare:
     - is_valid
     - time
     - distance
+
+
+base:
+  random_state: 42
+  target_col: distance
+
+
+split_data:
+  train_path: data/prepared/train.csv
+  test_path: data/prepared/test.csv
+ 
+
+results:
+  results_path: models/results.json
+
+model_dir: models

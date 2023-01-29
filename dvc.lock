@@ -1,0 +1,79 @@
+schema: '2.0'
+stages:
+  prepare:
+    cmd: python3 src/features/prepare.py
+    deps:
+    - path: src/features/prepare.py
+      md5: eb39542f35d472d790221ab9b711e20c
+      size: 1168
+    params:
+      params.yaml:
+        prepare.features:
+        - witness_lat
+        - witness_lng
+        - signal
+        - snr
+        - datarate
+        - is_valid
+        - time
+        - distance
+    outs:
+    - path: data/prepared/
+      md5: be65ce6dc8a18e62ad28b230a3f2fce2.dir
+      size: 21098
+      nfiles: 2
+  load_data_sps:
+    cmd: python -m src.data.load_data --id 1
+    outs:
+    - path: data/raw/experiments
+      md5: 23a45ca291ef459c72327981d3d21f00.dir
+      size: 3281
+      nfiles: 1
+  train:
+    cmd: python3 src/features/train.py
+    deps:
+    - path: data/prepared/train.csv
+      md5: 0188d13d5d4bfaad5c5a301025a59437
+      size: 14714
+    - path: src/features/train.py
+      md5: b4b0c55e1477fdccdf98c19fff1c5c7f
+      size: 1178
+    params:
+      params.yaml:
+        prepare.features:
+        - witness_lat
+        - witness_lng
+        - signal
+        - snr
+        - datarate
+        - is_valid
+        - time
+        - distance
+    outs:
+    - path: models/model.joblib
+      md5: 44ce3f8c6ae53768234109dd57a5db12
+      size: 943
+  evaluate:
+    cmd: python3 src/features/evaluate.py
+    deps:
+    - path: data/prepared/test.csv
+      md5: f0545d4a440cc727babd2ee9307b6610
+      size: 6384
+    - path: models/model.joblib
+      md5: 44ce3f8c6ae53768234109dd57a5db12
+      size: 943
+    params:
+      params.yaml:
+        prepare.features:
+        - witness_lat
+        - witness_lng
+        - signal
+        - snr
+        - datarate
+        - is_valid
+        - time
+        - distance
+    outs:
+    - path: models/results.json
+      md5: 1f95de499fb3c977be1ad4e01fbac85a
+      size: 190

@@ -13,12 +13,15 @@ import click
 import pandas as pd
 from dotenv import load_dotenv
 import re
+import numpy as np
 
 # Load environment variables from the .env file
 load_dotenv()
 
 # Set the spreadsheet ID and range for the data page
 SPREADSHEET_ID = '1ndlIyYhAmGTBoZtT3sPEgpV5b_Bug4vPjHSGHxnAk9Y'
+# SPREADSHEET_ID = '10sAr5HG1ouhe858_kq-fEDHrUyT0i5n74bu6bcv8WIs'
+
 DATA_RANGE_NAME = 'data!A1:M'
 
 # Set the column names for the datetime start and end columns
@@ -28,6 +31,11 @@ REPORTED_AT_COLUMN = 'reported_at'
 
 # Set the date format for the datetime columns
 DATE_FORMAT = '%d.%m.%Y %H:%M:%S'
+
+
+with open("src/data/hotspot_position_mapping.json", "r", encoding="utf-8") as file:
+    HOTSPOT_POSITION_MAPPING = json.load(file)
+
 
 def download_data(experiment_id, file_format, path):
     """
@@ -44,15 +52,17 @@ def download_data(experiment_id, file_format, path):
     data = get_data(service, SPREADSHEET_ID, "data")
     metadata = get_data(service, SPREADSHEET_ID, "metadata")
 
-    assert len(metadata) > experiment_id, f"Experiment with id {experiment_id} not found!"
-
     # get datetime column indices
     datetime_start_index = metadata[0].index(DATETIME_START_COLUMN)
     datetime_end_index = metadata[0].index(DATETIME_END_COLUMN)
 
     # get start and end dates of last experiment
-    start_date = metadata[experiment_id][datetime_start_index]
-    end_date = metadata[experiment_id][datetime_end_index]
+    metadata = {row[0]: row for row in metadata}
+
+    assert str(experiment_id) in metadata.keys(), f"Experiment with id {experiment_id} not found!"
+
+    start_date = metadata[str(experiment_id)][datetime_start_index]
+    end_date = metadata[str(experiment_id)][datetime_end_index]
 
     # Convert the start and end dates to datetime objects
     start_date = datetime.datetime.strptime(start_date, DATE_FORMAT)
@@ -63,31 +73,42 @@ def download_data(experiment_id, file_format, path):
 
     # Filter the data based on the start and end dates
     filtered_data = [
-        row 
-        for row in data[1:] 
+        row
+        for row in data[1:]
         if start_date <= get_datetime(row[reported_at_index]) <= end_date
     ]
 
     # Convert reported_at datetime format
     for row in filtered_data:
-        row[reported_at_index] = get_datetime(row[reported_at_index]).strftime(DATE_FORMAT)
+        row[reported_at_index] = get_datetime(
+            row[reported_at_index]).strftime(DATE_FORMAT)
 
-    assert len(filtered_data) > 0, f"No Data found for experiment with id {experiment_id}. Please check if the date range is correct!"
+    assert len(
+        filtered_data) > 0, f"No Data found for experiment with id {experiment_id}. Please check if the date range is correct!"
 
     # Normalize Data
     normalized_data = normalize_data(filtered_data, data[0])
 
-    experiment_name = f"experiment_{experiment_id}"
+    # check nodes
+    node_name_index = data[0].index("name")
+    node_names = np.unique([row[node_name_index] for row in filtered_data])
+    nodes = node_names[0].lower() if len(node_names) == 1 else "multiple_nodes"
+
+    experiment_name = f"experiment_{nodes}_{experiment_id}"
 
     # Write the filtered data to a CSV file
-    write_data(normalized_data[1:], normalized_data[0], path, experiment_name, file_format)
+    write_data(normalized_data[1:], normalized_data[0],
+               path, experiment_name, file_format)
+
 
 def get_datetime(datestring):
     if re.match("^\d{13}$", str(datestring)):
-        print(datestring,  datetime.datetime.fromtimestamp(int(datestring) / 1000))
-        return datetime.datetime.fromtimestamp(int(datestring) / 1000)
+        reported_at_datetime = datetime.datetime.fromtimestamp(int(datestring) / 1000)
+        reported_at_datetime_corrected = reported_at_datetime + datetime.timedelta(hours=1) # wrong device timezone
+        return reported_at_datetime_corrected
     else:
         return datetime.datetime.strptime(datestring, DATE_FORMAT)
+
 
 def normalize_data(data, columns):
     """
@@ -111,16 +132,48 @@ def normalize_data(data, columns):
     for row in data:
         # Parse the JSON string and extract the array of objects
         json_array = json.loads(row[3])
-        for json_obj in json_array:
+        for hotspot_obj in json_array:
+
+            corrected_hotspot_obj = get_corrected_hotspot(hotspot_obj)
+
             # Create a new row for each object in the array
-            new_row = row[:3] + [json_obj[key] if key in json_obj else "" for key in keys] + row[4:]
+            new_row = row[:3] + [hotspot_obj[key]
+                                 if key in hotspot_obj else "" for key in keys] + row[4:]
 
             # convert node_lat and node_long
-            new_row[1] = float(new_row[1].replace(",","."))
-            new_row[2] = float(new_row[2].replace(",","."))
+            new_row[1] = float(new_row[1].replace(",", "."))
+            new_row[2] = float(new_row[2].replace(",", "."))
 
             normalized_data.append(new_row)
     return normalized_data
+
+def get_corrected_hotspot(hotspot_obj):
+    """
+    Update the latitude and longitude values of a hotspots, if the position has been changed manually.
+
+    Args:
+    - hotspot_obj (dict): A dictionary representation of a hotspot.
+
+    Returns:
+    - dict: The updated hotspot object, with corrected latitude and longitude values if applicable.
+
+    """
+    if hotspot_obj["name"] == "active-black-lion":
+        print(f"correct position of hotspot {hotspot_obj['name']}")
+        hotspot_obj["lat"] = HOTSPOT_POSITION_MAPPING["active-black-lion"]["lat"]
+        hotspot_obj["long"] = HOTSPOT_POSITION_MAPPING["active-black-lion"]["long"]
+    elif hotspot_obj["name"] == "active-black-lion":
+        timestamp = hotspot_obj["reported_at"]
+        timestamp_date = datetime.datetime.fromtimestamp(
+            int(datestring) / 1000)
+        # date at wich the position of the hotspot was changed
+        change_date = datetime.datetime(2023, 1, 25)
+        if timestamp_date > timestamp_date:
+            print(f"correct position of hotspot {hotspot_obj['name']}")
+            hotspot_obj["lat"] = HOTSPOT_POSITION_MAPPING["precice-gingerbread-toad"]["lat"]
+            hotspot_obj["long"] = HOTSPOT_POSITION_MAPPING["precice-gingerbread-toad"]["long"]
+
+    return hotspot_obj
 
 def get_service():
     """
@@ -131,11 +184,12 @@ def get_service():
 
     # If an API key is specified in the .env file, use it to authenticate
     assert api_key, "Environment variable 'API_KEY' not found in current env. Please specify!"
-    
+
     # Create a service object
     service = build('sheets', 'v4', developerKey=api_key)
 
     return service
+
 
 def get_data(service, spreadsheet_id, page_name):
     """
@@ -151,7 +205,8 @@ def get_data(service, spreadsheet_id, page_name):
     """
 
     # Call the Sheets API to get the sheet with the given name
-    sheets = service.spreadsheets().get(spreadsheetId=spreadsheet_id).execute().get('sheets', [])
+    sheets = service.spreadsheets().get(
+        spreadsheetId=spreadsheet_id).execute().get('sheets', [])
     sheet = None
     for s in sheets:
         if s.get('properties', {}).get('title', '') == page_name:
@@ -163,15 +218,19 @@ def get_data(service, spreadsheet_id, page_name):
         return []
 
     # Get the number of rows and columns in the sheet
-    num_rows = sheet.get('properties', {}).get('gridProperties', {}).get('rowCount', 0)
-    num_cols = sheet.get('properties', {}).get('gridProperties', {}).get('columnCount', 0)
+    num_rows = sheet.get('properties', {}).get(
+        'gridProperties', {}).get('rowCount', 0)
+    num_cols = sheet.get('properties', {}).get(
+        'gridProperties', {}).get('columnCount', 0)
 
     # Call the Sheets API to get the values in the sheet
     range_name = f'{page_name}!A1:{chr(ord("A") + num_cols - 1)}{num_rows}'
-    result = service.spreadsheets().values().get(spreadsheetId=spreadsheet_id, range=range_name).execute()
+    result = service.spreadsheets().values().get(
+        spreadsheetId=spreadsheet_id, range=range_name).execute()
     values = result.get('values', [])
 
     return values
+
 
 def write_data(data, column_names, path, output_filename, file_format="csv"):
     """
@@ -189,16 +248,18 @@ def write_data(data, column_names, path, output_filename, file_format="csv"):
         df.to_csv(os.path.join(path, output_filename) + ".csv", index=False)
 
     elif file_format == 'pickle':
-        with open(os.path.join(path, output_filename)  + ".pkl", 'wb') as picklefile:
+        with open(os.path.join(path, output_filename) + ".pkl", 'wb') as picklefile:
             pickle.dump(data, picklefile)
     elif file_format == 'excel':
         df = pd.DataFrame(data, columns=column_names)
         df.to_excel(os.path.join(path, output_filename + ".xlsx"), index=False)
     elif file_format == 'parquet':
         df = pd.DataFrame(data, columns=column_names)
-        df.to_parquet(os.path.join(path, output_filename + ".parquet"), index=False)
+        df.to_parquet(os.path.join(
+            path, output_filename + ".parquet"), index=False)
     else:
         raise ValueError(f"Invalid file format: {file_format}")
+
 
 def print_experiment_table(data):
     """
@@ -211,15 +272,17 @@ def print_experiment_table(data):
     table = PrettyTable()
 
     # Set the column names
-    table.field_names = data[0]
+    table.field_names = data[0][:4]
+    table.align["short_description"] = "l"
 
     # Add the rows to the table
     for row in data[1:]:
-        table.add_row(row)
+        table.add_row(row[:4])
 
     # Print the table
     print(table)
     print()
+
 
 @click.command()
 @click.option('--id', type=int, help='The index of the row in the metadata page to use for filtering.')
@@ -247,8 +310,10 @@ def main(id, last, all, file_format, path):
             download_data(last_id, file_format, path)
         else:
             print_experiment_table(metadata)
-            id = click.prompt('Enter the ID of the experiment you want to extract', type=int)
+            id = click.prompt(
+                'Enter the ID of the experiment you want to extract', type=int)
             download_data(id, file_format, path)
     print("done!")
+
 
 main()

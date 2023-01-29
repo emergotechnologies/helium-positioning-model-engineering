@@ -30,3 +30,4 @@ prettytable
 pyarrow
 fastparquet
 openpyxl
+scikit-learn
