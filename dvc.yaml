@@ -1,12 +1,8 @@
 stages:
   load_data_sps:
-    cmd: python -m src.data.load_data --id 1
+    cmd: python -m src.data.load_data --all
     outs:
       - data/raw/experiments
-  #load_data_helium:
-  #  cmd: python -m helium_api_wrapper load-challenges --n 1000 --file_format "csv"
-  #  outs:
-  #    - data/raw/helium
       
   prepare:
     cmd: python3 src/features/prepare.py
@@ -18,24 +14,24 @@ stages:
     - data/prepared/
 
   
-  train:
-    cmd: python3 src/features/train.py
-    deps: 
-    - src/features/train.py
-    - data/prepared/train.csv
-    params: 
-    - prepare.features
-    - prepare.features
-    outs:
-    - models/model.joblib
+#  train:
+#    cmd: python3 src/features/train.py
+#    deps: 
+#    - src/features/train.py
+#    - data/prepared/train.csv
+#    params: 
+#    - prepare.features
+ #   - prepare.features
+ #   outs:
+ #   - models/model.joblib
 
 
-  evaluate:
-    cmd: python3 src/features/evaluate.py
-    deps:
-    - data/prepared/test.csv
-    - models/model.joblib
-    params: 
-    - prepare.features
-    outs:
-    - models/results.json
+#  evaluate:
+#    cmd: python3 src/features/evaluate.py
+#    deps:
+#    - data/prepared/test.csv
+#    - models/model.joblib
+#    params: 
+#    - prepare.features
+#    outs:
+#    - models/results.json

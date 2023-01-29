@@ -23,12 +23,12 @@ stages:
       size: 21098
       nfiles: 2
   load_data_sps:
-    cmd: python -m src.data.load_data --id 1
+    cmd: python -m src.data.load_data --all
     outs:
     - path: data/raw/experiments
-      md5: 23a45ca291ef459c72327981d3d21f00.dir
-      size: 3281
-      nfiles: 1
+      md5: b2d27c7861efaa1b7ef1419041d2db19.dir
+      size: 969270
+      nfiles: 18
   train:
     cmd: python3 src/features/train.py
     deps:
