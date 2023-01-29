@@ -13,6 +13,15 @@ stages:
     outs:
     - data/prepared/
 
+  featurize:
+    cmd: python3 src/features/featurize.py
+    deps: 
+    - src/features/featurize.py
+    params: 
+    - prepare.features
+    outs:
+    - data/featurized/
+
   
 #  train:
 #    cmd: python3 src/features/train.py
