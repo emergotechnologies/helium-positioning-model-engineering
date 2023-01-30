@@ -1,6 +1,6 @@
 stages:
   load_data_sps:
-    cmd: python -m src.data.load_data --id 1
+    cmd: python -m src.data.load_data --id 2
     outs:
       - data/raw/experiments
   #load_data_helium:
@@ -15,7 +15,18 @@ stages:
     params: 
     - prepare.features
     outs:
-    - data/prepared/
+    - data/prepared/full_dataset.csv
+
+
+  featurize:
+    cmd: python3 src/features/featurize.py
+    deps: 
+    - data/prepared/full_dataset.csv
+    params: 
+    - prepare.features
+    outs:
+    - data/prepared/train.csv
+    - data/prepared/test.csv
 
   
   train:

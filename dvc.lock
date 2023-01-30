@@ -4,8 +4,8 @@ stages:
     cmd: python3 src/features/prepare.py
     deps:
     - path: src/features/prepare.py
-      md5: eb39542f35d472d790221ab9b711e20c
-      size: 1168
+      md5: bc3889c09487a058d549f032eccff3a0
+      size: 2899
     params:
       params.yaml:
         prepare.features:
@@ -18,26 +18,25 @@ stages:
         - time
         - distance
     outs:
-    - path: data/prepared/
-      md5: be65ce6dc8a18e62ad28b230a3f2fce2.dir
-      size: 21098
-      nfiles: 2
+    - path: data/prepared/full_dataset.csv
+      md5: 451c40aa9f7b57536416c8cfc656c4ba
+      size: 4862
   load_data_sps:
-    cmd: python -m src.data.load_data --id 1
+    cmd: python -m src.data.load_data --id 2
     outs:
     - path: data/raw/experiments
-      md5: 23a45ca291ef459c72327981d3d21f00.dir
-      size: 3281
+      md5: 00354177a1a0964b6cfab12f493df8ac.dir
+      size: 29337
       nfiles: 1
   train:
     cmd: python3 src/features/train.py
     deps:
     - path: data/prepared/train.csv
-      md5: 0188d13d5d4bfaad5c5a301025a59437
-      size: 14714
+      md5: bc2bdf9015c0077bc8d7bfbf79e9c826
+      size: 4607
     - path: src/features/train.py
       md5: b4b0c55e1477fdccdf98c19fff1c5c7f
-      size: 1178
+      size: 1217
     params:
       params.yaml:
         prepare.features:
@@ -51,17 +50,17 @@ stages:
         - distance
     outs:
     - path: models/model.joblib
-      md5: 44ce3f8c6ae53768234109dd57a5db12
-      size: 943
+      md5: 1e1bb660a0019abf4cd82a0d6bb2ee1c
+      size: 959
   evaluate:
     cmd: python3 src/features/evaluate.py
     deps:
     - path: data/prepared/test.csv
-      md5: f0545d4a440cc727babd2ee9307b6610
-      size: 6384
+      md5: e83ba20e83a693bd4167c67518c9817b
+      size: 2053
     - path: models/model.joblib
-      md5: 44ce3f8c6ae53768234109dd57a5db12
-      size: 943
+      md5: 1e1bb660a0019abf4cd82a0d6bb2ee1c
+      size: 959
     params:
       params.yaml:
         prepare.features:
@@ -75,5 +74,29 @@ stages:
         - distance
     outs:
     - path: models/results.json
-      md5: 1f95de499fb3c977be1ad4e01fbac85a
-      size: 190
+      md5: 014dd7fb146d9388ab2fc8ae5d84912c
+      size: 198
+  featurize:
+    cmd: python3 src/features/featurize.py
+    deps:
+    - path: data/prepared/full_dataset.csv
+      md5: 451c40aa9f7b57536416c8cfc656c4ba
+      size: 4862
+    params:
+      params.yaml:
+        prepare.features:
+        - witness_lat
+        - witness_lng
+        - signal
+        - snr
+        - datarate
+        - is_valid
+        - time
+        - distance
+    outs:
+    - path: data/prepared/test.csv
+      md5: e83ba20e83a693bd4167c67518c9817b
+      size: 2053
+    - path: data/prepared/train.csv
+      md5: bc2bdf9015c0077bc8d7bfbf79e9c826
+      size: 4607
