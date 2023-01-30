@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
 import yaml
 import argparse
 import joblib
@@ -29,8 +30,15 @@ def train(config_path):
     model_path = os.path.join(model_dir, "model.joblib")
     print("Export Joblib to ", model_path)
     joblib.dump(model, model_path)
-    print("joblib exported")
+    print("Linear Regressor exported")
 
+    # Build random forest regressor model
+    model = RandomForestRegressor().fit(train_x, train_y.values.ravel())
+    os.makedirs(model_dir, exist_ok=True)
+    model_path = os.path.join(model_dir, "rfr_model.joblib")
+    print("Export Joblib to ", model_path)
+    joblib.dump(model, model_path)
+    print("random forest regressor  exported")
 
 if __name__=="__main__":
     args = argparse.ArgumentParser()

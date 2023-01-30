@@ -12,6 +12,7 @@ stages:
     cmd: python3 src/features/prepare.py
     deps: 
     - src/features/prepare.py
+    - data/raw/experiments
     params: 
     - prepare.features
     outs:
