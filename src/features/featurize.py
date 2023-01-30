@@ -3,16 +3,12 @@ import os
 import yaml
 import pandas as pd
 import numpy as np
-import pickle
-from scipy.optimize import minimize
-import haversine as hs
-from haversine import Unit
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler, PolynomialFeatures, FunctionTransformer
 from sklearn.model_selection import train_test_split
-from sklearn.cross_decomposition import PLSRegression
-from sklearn.decomposition import PCA
-import sklearn.metrics as metrics
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OrdinalEncoder
+from sklearn.pipeline import Pipeline
+import joblib
 
 # read command line params
 
@@ -36,19 +32,22 @@ data_path = os.makedirs("../data/prepared")
 # todo: do we need to import the data already seperated as train/test? Otherwise we can change this snippet
 # read the data from file
 
+# for testing purposes only 
 data = pd.read_csv("../data/prepared/full_dataset.csv")
 
-# todo loop which scales the numeric features
-scaler = StandardScaler()
+numeric_features = ["snr", "rssi", "frequency", "distance"]
 
-data["rssi"] = scaler.fit_transform(data["rssi"].values.reshape(-1, 1))
-data["snr"] = scaler.fit_transform(data["snr"].values.reshape(-1, 1))
-data["frequency"] = scaler.fit_transform(data["frequency"].values.reshape(-1, 1))
-data["distance"] = scaler.fit_transform(data["distance"].values.reshape(-1, 1))
- 
-label = LabelEncoder()
+numeric_transformer = Pipeline(steps=[("scaler", StandardScaler())])
 
-data["datarate"] = label.fit_transform(data["datarate"])
+categorical_features = ["datarate"]
+
+categorical_transformer = Pipeline(steps=[("encoder", OrdinalEncoder()),])
+
+preprocessor = ColumnTransformer(transformers=[("num", numeric_transformer, numeric_features),("cat", categorical_transformer, categorical_features),])
+
+# save preprocessor as joblib
+joblib.dump(preprocessor, "preprocess.joblib")
+
 
 # for i in range(len(data)):
 #     data["distance"][i] = hs.haversine(
