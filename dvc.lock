@@ -1,11 +1,11 @@
 schema: '2.0'
 stages:
   prepare:
-    cmd: python3 src/features/prepare.py
+    cmd: python3 src/features/prepare.py --file_origin google_sheets
     deps:
     - path: src/features/prepare.py
-      md5: bc3889c09487a058d549f032eccff3a0
-      size: 2899
+      md5: 9d13ef2d0294b8f74a87a7ad287632b4
+      size: 3264
     params:
       params.yaml:
         prepare.features:
@@ -19,8 +19,8 @@ stages:
         - distance
     outs:
     - path: data/prepared/full_dataset.csv
-      md5: 451c40aa9f7b57536416c8cfc656c4ba
-      size: 4862
+      md5: fedbb4da5e3d2c94325490af131630c5
+      size: 4786
   load_data_sps:
     cmd: python -m src.data.load_data --id 2
     outs:
@@ -32,8 +32,8 @@ stages:
     cmd: python3 src/features/train.py
     deps:
     - path: data/prepared/train.csv
-      md5: bc2bdf9015c0077bc8d7bfbf79e9c826
-      size: 4607
+      md5: 8b6c9d796329b38cd747976a6d72cc16
+      size: 4717
     - path: src/features/train.py
       md5: b4b0c55e1477fdccdf98c19fff1c5c7f
       size: 1217
@@ -50,16 +50,16 @@ stages:
         - distance
     outs:
     - path: models/model.joblib
-      md5: 1e1bb660a0019abf4cd82a0d6bb2ee1c
+      md5: d78834c34b2111a70448b196535fc2d8
       size: 959
   evaluate:
     cmd: python3 src/features/evaluate.py
     deps:
     - path: data/prepared/test.csv
-      md5: e83ba20e83a693bd4167c67518c9817b
-      size: 2053
+      md5: 54309b395f10c33d39f113871dcdedd2
+      size: 2142
     - path: models/model.joblib
-      md5: 1e1bb660a0019abf4cd82a0d6bb2ee1c
+      md5: d78834c34b2111a70448b196535fc2d8
       size: 959
     params:
       params.yaml:
@@ -74,14 +74,14 @@ stages:
         - distance
     outs:
     - path: models/results.json
-      md5: 014dd7fb146d9388ab2fc8ae5d84912c
-      size: 198
+      md5: 8abb5c271748084c852fea1e28a5f81a
+      size: 199
   featurize:
     cmd: python3 src/features/featurize.py
     deps:
     - path: data/prepared/full_dataset.csv
-      md5: 451c40aa9f7b57536416c8cfc656c4ba
-      size: 4862
+      md5: fedbb4da5e3d2c94325490af131630c5
+      size: 4786
     params:
       params.yaml:
         prepare.features:
@@ -95,8 +95,8 @@ stages:
         - distance
     outs:
     - path: data/prepared/test.csv
-      md5: e83ba20e83a693bd4167c67518c9817b
-      size: 2053
+      md5: 54309b395f10c33d39f113871dcdedd2
+      size: 2142
     - path: data/prepared/train.csv
-      md5: bc2bdf9015c0077bc8d7bfbf79e9c826
-      size: 4607
+      md5: 8b6c9d796329b38cd747976a6d72cc16
+      size: 4717

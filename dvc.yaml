@@ -9,7 +9,7 @@ stages:
   #    - data/raw/helium
       
   prepare:
-    cmd: python3 src/features/prepare.py
+    cmd: python3 src/features/prepare.py --file_origin google_sheets
     deps: 
     - src/features/prepare.py
     params: 
