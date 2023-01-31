@@ -41,7 +41,7 @@ numeric_transformer = Pipeline(steps=[("scaler", StandardScaler())])
 
 categorical_features = ["datarate"]
 
-categorical_transformer = Pipeline(steps=[("encoder", OrdinalEncoder()),])
+categorical_transformer = Pipeline(steps=[("encoder", OrdinalEncoder(handle_unknown="use_encoded_value", unknown_value= -1)),])
 
 preprocessor = ColumnTransformer(transformers=[("num", numeric_transformer, numeric_features),("cat", categorical_transformer, categorical_features),])
 
