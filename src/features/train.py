@@ -8,10 +8,12 @@ import joblib
 
 
 
-params = yaml.safe_load(open('params.yaml'))#['base']
+params = yaml.safe_load(open('params.yaml'))
 
-def train(config_path):
-    #config = read_params(config_path)
+def training(config_path):
+    """This method is responsible for creating two models based on the training
+    data and export it to the folder models.
+    """
     test_data_path = params["split_data"]["test_path"]
     train_data_path = params["split_data"]["train_path"]
     model_dir = params["model_dir"]
@@ -44,4 +46,4 @@ if __name__=="__main__":
     args = argparse.ArgumentParser()
     args.add_argument("--config", default="params.yaml")
     parsed_args = args.parse_args()
-    train(config_path = parsed_args.config)
+    training(config_path = parsed_args.config)
