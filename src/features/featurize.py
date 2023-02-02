@@ -14,20 +14,6 @@ from sklearn.decomposition import PCA
 import sklearn.metrics as metrics
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-# read command line params
-
-# if len(sys.argv) != 3:
-#     sys.stderr.write('Arguments error. Usage:\n')
-#     sys.stderr.write(
-#         '\tpython featurize.py data-dir-path features-dir-path\n'
-#     )
-#     sys.exit(1)
-
-# data_path = sys.argv[1]
-# features_path = sys.argv[2]
-
-# os.makedirs(features_path, exist_ok=True)
-
 os.makedirs("data/prepared", exist_ok=True)
 
 data_path = "data/prepared"
