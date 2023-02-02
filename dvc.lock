@@ -1,26 +1,22 @@
 schema: '2.0'
 stages:
   prepare:
-    cmd: python3 src/features/prepare.py
+    cmd: python3 src/features/prepare.py --file_origin google_sheets
     deps:
     - path: data/raw/experiments
       md5: 00354177a1a0964b6cfab12f493df8ac.dir
       size: 29337
       nfiles: 1
     - path: src/features/prepare.py
-      md5: bc3889c09487a058d549f032eccff3a0
-      size: 2899
+      md5: e5e3e4bdb7b7814c75c755da98161cb5
+      size: 2340
     params:
       params.yaml:
         prepare.features:
-        - witness_lat
-        - witness_lng
-        - signal
+        - rssi
         - snr
-        - datarate
-        - is_valid
-        - time
-        - distance
+        - spreading
+        - frequency
     outs:
     - path: data/prepared/full_dataset.csv
       md5: fedbb4da5e3d2c94325490af131630c5
@@ -39,19 +35,15 @@ stages:
       md5: 8b6c9d796329b38cd747976a6d72cc16
       size: 4717
     - path: src/features/train.py
-      md5: c2f00b75351b90de67d65e944eef1360
-      size: 1629
+      md5: 580cca821d882efe725a15e2e46f8d4c
+      size: 1722
     params:
       params.yaml:
         prepare.features:
-        - witness_lat
-        - witness_lng
-        - signal
+        - rssi
         - snr
-        - datarate
-        - is_valid
-        - time
-        - distance
+        - spreading
+        - frequency
     outs:
     - path: models/model.joblib
       md5: d78834c34b2111a70448b196535fc2d8
@@ -68,18 +60,14 @@ stages:
     params:
       params.yaml:
         prepare.features:
-        - witness_lat
-        - witness_lng
-        - signal
+        - rssi
         - snr
-        - datarate
-        - is_valid
-        - time
-        - distance
+        - spreading
+        - frequency
     outs:
     - path: models/results.json
-      md5: 8abb5c271748084c852fea1e28a5f81a
-      size: 199
+      md5: 3ccffb38ac8a6cb2184ffa1e9c7c8e76
+      size: 452
   featurize:
     cmd: python3 src/features/featurize.py
     deps:
@@ -89,14 +77,10 @@ stages:
     params:
       params.yaml:
         prepare.features:
-        - witness_lat
-        - witness_lng
-        - signal
+        - rssi
         - snr
-        - datarate
-        - is_valid
-        - time
-        - distance
+        - spreading
+        - frequency
     outs:
     - path: data/prepared/test.csv
       md5: 54309b395f10c33d39f113871dcdedd2

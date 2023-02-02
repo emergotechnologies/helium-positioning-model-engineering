@@ -21,6 +21,7 @@ def evaluate(config_path):
     # load features
     test_features = pd.read_csv(test_data_path, sep=",")
     X_test = test_features.iloc[:,:-1]
+    print(X_test)
     y_test = test_features.iloc[:,-1]
     with open(results_path, 'w') as f:
         for root, dirs, files in os.walk("models"):
@@ -60,28 +61,6 @@ def evaluate(config_path):
                         'MSE': round(mse,4), 'RMSE': round(np.sqrt(mse),4)}\
                         },  f, indent = 2)
 
-                    # json.dump({f'model{counter}': f'{file}'}, f, indent = 2)
-                    # json.dump({'score': score}, f)
-                    # #json.dump({'coefficients': coefficients}, f)
-                    # json.dump({'explained_variance': round(explained_variance,4)}, f)   
-                    # json.dump({'r2': round(r2,4)}, f)
-                    # json.dump({'MeanAE': round(mean_absolute_error,4)}, f)
-                    # json.dump({'MedianAE': round(median_absolute_error,4)}, f)
-                    # json.dump({'MSE': round(mse,4)}, f)
-                    # json.dump({'RMSE': round(np.sqrt(mse),4)}, f)
-                    # json.dump('\n', f)
-
-                    # with open(results_path, 'w') as f:
-                    #     f.write(f'model{counter}: {file}\n')
-                    #     f.write(f'score: {score}\n')
-                    #     f.write(f'explained_variance: {round(explained_variance,4)}\n')   
-                    #     f.write(f'r2: {round(r2,4)}\n')
-                    #     f.write(f'MeanAE: {round(mean_absolute_error,4)}\n')
-                    #     f.write(f'MedianAE: {round(median_absolute_error,4)}\n')
-                    #     f.write(f'MSE: {round(mse,4)}\n')
-                    #     f.write(f'RMSE: {round(np.sqrt(mse),4)}\n\n')
-                    
-                    
                     counter+=1
 
 if __name__=="__main__":
