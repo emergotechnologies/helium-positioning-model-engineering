@@ -14,12 +14,12 @@ from sklearn.decomposition import PCA
 import sklearn.metrics as metrics
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-os.makedirs("data/prepared", exist_ok=True)
+os.makedirs("data/preprocessor", exist_ok=True)
 
 data_path = "data/prepared"
 
 # for testing purposes only 
-data = pd.read_csv("../data/prepared/full_dataset.csv")
+data = pd.read_csv("data/prepared/full_dataset.csv")
 
 numeric_features = ["snr", "rssi", "frequency", "distance"]
 
@@ -32,8 +32,17 @@ categorical_transformer = Pipeline(steps=[("encoder", OrdinalEncoder(handle_unkn
 preprocessor = ColumnTransformer(transformers=[("num", numeric_transformer, numeric_features),("cat", categorical_transformer, categorical_features),])
 
 # save preprocessor as joblib
-joblib.dump(preprocessor, "preprocess.joblib")
+joblib.dump(preprocessor, "data/preprocessor/preprocess.joblib")
 
+scaler = StandardScaler()
+data["rssi"] = scaler.fit_transform(data["rssi"].values.reshape(-1, 1))
+data["snr"] = scaler.fit_transform(data["snr"].values.reshape(-1, 1))
+data["frequency"] = scaler.fit_transform(data["frequency"].values.reshape(-1, 1))
+data["distance"] = scaler.fit_transform(data["distance"].values.reshape(-1, 1))
+ 
+label = LabelEncoder()
+
+data["datarate"] = label.fit_transform(data["datarate"])
 
 def splitter(inputdata):
     #inp = inputdata.reset_index(drop=True)
@@ -47,5 +56,5 @@ def splitter(inputdata):
     
 splitter(data)
 
-append_labels_and_save_pkl(data_input_file, train_matrix, 'train.pkl')
-append_labels_and_save_pkl(test_input_file, test_matrix, 'test.pkl') 
+#append_labels_and_save_pkl(data_input_file, train_matrix, 'train.pkl')
+#append_labels_and_save_pkl(test_input_file, test_matrix, 'test.pkl') 
