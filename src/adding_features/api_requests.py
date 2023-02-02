@@ -15,10 +15,11 @@ def get_seahight(latitude_seaheight, longitude_seaheight):
 
 
 
-def get_artificial_brightness(query_latitude, query_longitude, query_layer="viirs_2021", query_type="point", api_key="f7Pot9fJp6K5onYg"):
+def get_artificial_brightness(query_latitude, query_longitude, query_layer="viirs_2021", query_type="point", api_key=""):
     """
 
     DO NOT SHARE API-KEY !!!
+    need to find your own api key from https://www.lightpollutionmap.info writing to Stare Jurij
     
     query_latitude: type=str, latitude in dec e.g. 43.65 (between -90 <= x < 90)
     query_longitude: type=str, longitude in dec e.g. 94.32 (between -180 <= x < 180)
