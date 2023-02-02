@@ -1,6 +1,10 @@
 stages:
   load_data_sps:
+<<<<<<< dvc.yaml
     cmd: python -m src.data.load_data --all
+=======
+    cmd: python -m src.data.load_data --id 2
+>>>>>>> dvc.yaml
     outs:
       - data/raw/experiments
       
@@ -8,13 +12,27 @@ stages:
     cmd: python3 src/features/prepare.py
     deps: 
     - src/features/prepare.py
+    - data/raw/experiments
     params: 
     - prepare.features
     outs:
-    - data/prepared/
+    - data/prepared/full_dataset.csv
 
   featurize:
     cmd: python3 src/features/featurize.py
+<<<<<<< dvc.yaml
+=======
+    deps: 
+    - data/prepared/full_dataset.csv
+    params: 
+    - prepare.features
+    outs:
+    - data/prepared/train.csv
+    - data/prepared/test.csv
+  
+  train:
+    cmd: python3 src/features/train.py
+>>>>>>> dvc.yaml
     deps: 
     - src/features/featurize.py
     params: 
@@ -22,6 +40,7 @@ stages:
     outs:
     - data/featurized/
 
+<<<<<<< dvc.yaml
   
 #  train:
 #    cmd: python3 src/features/train.py
@@ -44,3 +63,14 @@ stages:
 #    - prepare.features
 #    outs:
 #    - models/results.json
+=======
+  evaluate:
+    cmd: python3 src/features/evaluate.py
+    deps:
+    - data/prepared/test.csv
+    - models/model.joblib
+    params: 
+    - prepare.features
+    outs:
+    - models/results.json
+>>>>>>> dvc.yaml

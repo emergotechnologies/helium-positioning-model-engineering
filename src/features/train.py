@@ -1,16 +1,19 @@
 import os
 import pandas as pd
 from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
 import yaml
 import argparse
 import joblib
 
 
 
-params = yaml.safe_load(open('params.yaml'))#['base']
+params = yaml.safe_load(open('params.yaml'))
 
-def train(config_path):
-    #config = read_params(config_path)
+def training(config_path):
+    """This method is responsible for creating two models based on the training
+    data and export it to the folder models.
+    """
     test_data_path = params["split_data"]["test_path"]
     train_data_path = params["split_data"]["train_path"]
     model_dir = params["model_dir"]
@@ -29,11 +32,18 @@ def train(config_path):
     model_path = os.path.join(model_dir, "model.joblib")
     print("Export Joblib to ", model_path)
     joblib.dump(model, model_path)
-    print("joblib exported")
+    print("Linear Regressor exported")
 
+    # Build random forest regressor model
+    model = RandomForestRegressor().fit(train_x, train_y.values.ravel())
+    os.makedirs(model_dir, exist_ok=True)
+    model_path = os.path.join(model_dir, "rfr_model.joblib")
+    print("Export Joblib to ", model_path)
+    joblib.dump(model, model_path)
+    print("random forest regressor  exported")
 
 if __name__=="__main__":
     args = argparse.ArgumentParser()
     args.add_argument("--config", default="params.yaml")
     parsed_args = args.parse_args()
-    train(config_path = parsed_args.config)
+    training(config_path = parsed_args.config)
