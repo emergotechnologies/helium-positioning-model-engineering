@@ -3,10 +3,6 @@ stages:
     cmd: python -m src.data.load_data --id 2
     outs:
       - data/raw/experiments
-  #load_data_helium:
-  #  cmd: python -m helium_api_wrapper load-challenges --n 1000 --file_format "csv"
-  #  outs:
-  #    - data/raw/helium
       
   prepare:
     cmd: python3 src/features/prepare.py
@@ -18,7 +14,6 @@ stages:
     outs:
     - data/prepared/full_dataset.csv
 
-
   featurize:
     cmd: python3 src/features/featurize.py
     deps: 
@@ -28,7 +23,6 @@ stages:
     outs:
     - data/prepared/train.csv
     - data/prepared/test.csv
-
   
   train:
     cmd: python3 src/features/train.py
@@ -40,7 +34,6 @@ stages:
     - prepare.features
     outs:
     - models/model.joblib
-
 
   evaluate:
     cmd: python3 src/features/evaluate.py
