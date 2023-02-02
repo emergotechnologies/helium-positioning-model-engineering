@@ -18,6 +18,17 @@ os.makedirs(data_path, exist_ok= True)
 
 flag="google_sheets"
 
+<<<<<<< src/features/prepare.py
+
+#TODO  hier sollte eine Methode entstehen, um alle oder bestimmte relevante Ordner zu lesen 
+# und Daten aus Experimente und/oder remote/storage und/oder Wrapper zu fetchen
+nr_of_files = os.walk()
+
+data = pd.read_csv("./data/experiments/remote_storage/challenges.pkl")
+data = pd.read_pickle("./data/raw/remote_storage/challenges.pkl")
+data = data.reset_index(drop=True)
+data = data[["rssi","snr","spreading","frequency","channel"]]
+=======
 if flag == "helium":
     data = pd.read_pickle("./data/raw/remote_storage/challenges.pkl")
     data = data.reset_index(drop=True)
@@ -62,6 +73,7 @@ data.to_csv(data_path + "/full_dataset.csv", sep=",", index=False, encoding="utf
 #data = pd.read_pickle("./data/raw/remote_storage/challenges.pkl")
 #data = data.reset_index(drop=True)
 #data = data[["witness_lat","witness_lng","signal","distance"]]
+>>>>>>> src/features/prepare.py
 #data_train = data_path(subset = 'train', features= 'features')
 #data_test = data_path(subset = 'test', features= 'features')
 
