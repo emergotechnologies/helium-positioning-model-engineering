@@ -21,7 +21,6 @@ def evaluate(config_path):
     # load features
     test_features = pd.read_csv(test_data_path, sep=",")
     X_test = test_features.iloc[:,:-1]
-    print(X_test)
     y_test = test_features.iloc[:,-1]
     with open(results_path, 'w') as f:
         for root, dirs, files in os.walk("models"):
