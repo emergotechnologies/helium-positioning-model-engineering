@@ -1,0 +1,45 @@
+DVC mit poetry
+In diesem Beitrag wird die Einrichtung von DVC für die Datenversionierung durchgenommen.
+
+Grundvorraussetzung git ist initialisiert und [DVC ist installiert](https://dvc.org/doc/install).
+
+Um DVC zu initialisieren muss im Terminal dvc init ausgeführt werden.
+
+Daten können direkt in den gewünschten Ordner im git-Repro gespeichert werden.
+
+Mit dvc add path_to_data wird die angegebene Datei zu DVC, die Daten im .gitignore hinzugefügt und eine data.dvc datei erstellt die als Platzhalter inkl. DVC Informationen in Git fungiert.
+
+Mit git add, git commit können diese Änderungen gleich auf git gespielt werden.
+
+### Bestehender Remote (unser Fall)
+
+folgenden Code in .dvc/config einfügen:
+
+```
+[core]
+    remote = webdav
+['remote "webdav"']
+    url = webdavs://nextcloud.web.fh-kufstein.ac.at/remote.php/dav/files/pp_lorawan/
+    user = pp_lorawan
+    password = @N4wqK%<*;T(@I9X
+```
+
+### Poetry
+
+Im Spezialfall wenn man poetry als venv verwendet müssen zusätzlich mit poetry add "dvc[webdav]" mit einem anschießenden poetry install die notwendigen packages installiert werden.
+
+Mit dvc push und dvc pull können nun die Daten in die nextcloud geschoben werden und das git-Repro ist leichtgewichtiger.
+
+Mehr Informationen zu DVC findet man hier: https://dvc.org/doc
+
+
+### Usage:
+git repro: 
+- For the execution of the entire pipeline, including webdav pull
+git repro stagename:
+- for the execution of a specific stage, just include the stage name at the end of the command.
+
+
+### Pipeline overview
+![DVC_DAG](uploads/112c2adb1939251cb8ff95c25abe0602/DVC_DAG.png)
+
